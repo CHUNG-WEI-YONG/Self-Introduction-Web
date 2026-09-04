@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete | {{ post.title }}{% endblock %}
+
+{% block content %}
+    <section class="section-block">
+        <article class="base-card card-article" style="border-color: rgba(248, 113, 113, 0.4);">
+            <h2 class="hero-title" style="color: #f87171;">Delete Article?</h2>
+            <p class="card-desc">
+                Are you sure you want to permanently delete <strong>"{{ post.title }}"</strong>? This action cannot be undone.
+            </p>
+
+            <form method="post" style="display: flex; gap: 12px; margin-top: 24px;">
+                {% csrf_token %}
+                <button type="submit" class="btn-glow-more" style="background: rgba(248, 113, 113, 0.2); border-color: #f87171; cursor: pointer;">
+                    Confirm Delete
+                </button>
+                <a class="btn-glow-more" href="{% url 'blog:post_detail' slug=post.slug %}">Cancel</a>
+            </form>
+        </article>
+    </section>
+{% endblock %}

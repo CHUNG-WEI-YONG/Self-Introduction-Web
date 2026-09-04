@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action_title }} | Engineering Blog{% endblock %}
+
+{% block content %}
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h2 class="section-heading" style="color: var(--c-purple);">
+                <span class="status-dot dot-purple"></span> {{ action_title }}
+            </h2>
+            <a class="btn-glow-more" href="{% url 'blog:post_list' %}">&larr; Cancel & Return</a>
+        </div>
+
+        <div class="form-container-card">
+            <!-- 必须声明 enctype="multipart/form-data" -->
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-error-banner">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- 标题 -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.title.id_for_label }}">
+                        Article Title <span class="required-star">*</span>
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <span class="field-error-msg">{{ form.title.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- 状态与发布时间 -->
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.status.id_for_label }}">Publication Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <span class="field-error-msg">{{ form.status.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.publish_date.id_for_label }}">Publish Timestamp</label>
+                        {{ form.publish_date }}
+                        {% if form.publish_date.errors %}
+                            <span class="field-error-msg">{{ form.publish_date.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 标签 -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.tags.id_for_label }}">
+                        Associated Tags <span class="label-hint">(Hold Ctrl/Cmd to select multiple)</span>
+                    </label>
+                    {{ form.tags }}
+                    {% if form.tags.errors %}
+                        <span class="field-error-msg">{{ form.tags.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- 多图片上传入口 -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Upload Gallery Images <span class="label-hint">(Hold Ctrl/Shift to choose multiple files)</span>
+                    </label>
+                    <input type="file" name="images" multiple class="form-control" accept="image/*">
+                </div>
+
+                <!-- 正文内容 -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.content.id_for_label }}">
+                        Post Content <span class="required-star">*</span>
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <span class="field-error-msg">{{ form.content.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-action-bar">
+                    <button type="submit" class="btn-glow-more btn-submit">
+                        Save Article <span class="arrow">&rarr;</span>
+                    </button>
+                    <a class="btn-cancel" href="{% url 'blog:post_list' %}">Discard</a>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

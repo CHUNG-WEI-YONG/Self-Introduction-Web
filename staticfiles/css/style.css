@@ -1,0 +1,650 @@
+/* ==========================================================================
+   1. 基础设计变量与动态背景系统
+   ========================================================================== */
+:root {
+    --bg-dark: #070b14;
+    --card-surface: #0f172a;
+    --text-pure: #ffffff;
+    --text-regular: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    /* 三大主题色体系 */
+    --c-cyan: #38bdf8;
+    --c-cyan-glow: rgba(56, 189, 248, 0.35);
+    --c-purple: #a855f7;
+    --c-purple-glow: rgba(168, 85, 247, 0.35);
+    --c-emerald: #10b981;
+    --c-emerald-glow: rgba(16, 185, 129, 0.35);
+
+    --border-base: #1e293b;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.site-body {
+    background-color: var(--bg-dark);
+    /* 科技背景：顶部径向发光 + 动态微网格 */
+    background-image: 
+        radial-gradient(circle at 50% -20%, rgba(56, 189, 248, 0.15), transparent 45%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    color: var(--text-regular);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.site-container {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ==========================================================================
+   2. 顶部吸顶导航栏
+   ========================================================================== */
+.site-header {
+    background: rgba(7, 11, 20, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-base);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 18px 0;
+}
+
+.header-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-logo a {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-pure);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+}
+
+.logo-accent {
+    color: var(--c-cyan);
+}
+
+.cursor-blink {
+    color: var(--c-cyan);
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.nav-menu {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-item {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.nav-item:hover {
+    color: #fff;
+    background: rgba(56, 189, 248, 0.08);
+    border-color: rgba(56, 189, 248, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+}
+
+/* ==========================================================================
+   3. 模块间距与状态标题栏
+   ========================================================================== */
+.site-main {
+    flex: 1;
+    padding: 56px 0 90px;
+}
+
+.section-block {
+    margin-bottom: 72px; /* 彻底拉开板块间距，杜绝紧贴 */
+}
+
+.section-title-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--border-base);
+}
+
+.section-heading {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--text-pure);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 状态微光呼吸圆点 */
+.status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-cyan {
+    background-color: var(--c-cyan);
+    box-shadow: 0 0 10px var(--c-cyan);
+}
+
+.dot-purple {
+    background-color: var(--c-purple);
+    box-shadow: 0 0 10px var(--c-purple);
+}
+
+.dot-emerald {
+    background-color: var(--c-emerald);
+    box-shadow: 0 0 10px var(--c-emerald);
+}
+
+/* ==========================================================================
+   4. 差异化卡片系统（支持背景图）
+   ========================================================================== */
+.base-card {
+    background-color: var(--card-surface);
+    border-radius: 16px;
+    padding: 28px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* --- 预留背景图能力：若添加此类名，将自动叠加暗色遮罩 --- */
+.has-bg-img {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: overlay;
+    background-color: rgba(15, 23, 42, 0.88);
+}
+
+/* 4.1 Hero 头部卡片 */
+.card-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-left: 6px solid var(--c-cyan);
+    padding: 40px 32px;
+    margin-bottom: 64px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+}
+
+.hero-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-pure);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+/* 4.2 Project 项目卡片（电光蓝主题） */
+.card-project {
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-project:hover {
+    border-color: var(--c-cyan);
+    transform: translateY(-8px);
+    box-shadow: 0 16px 36px -10px var(--c-cyan-glow);
+}
+
+/* 4.3 Article 博客卡片（霓虹紫主题） */
+.card-article {
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-article:hover {
+    border-color: var(--c-purple);
+    transform: translateY(-8px);
+    box-shadow: 0 16px 36px -10px var(--c-purple-glow);
+}
+
+/* 4.4 Tech 技能看板（翡翠绿主题） */
+.card-tech {
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-tech:hover {
+    border-color: var(--c-emerald);
+    box-shadow: 0 12px 30px var(--c-emerald-glow);
+}
+
+/* 卡片内部文本结构 */
+.card-item-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-pure);
+    margin-bottom: 8px;
+}
+
+.card-item-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.card-item-title a:hover {
+    color: var(--c-cyan);
+}
+
+.card-meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 12px;
+}
+
+.card-desc {
+    color: var(--text-regular);
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+    line-height: 1.65;
+}
+
+/* 4.5 响应式双列网格 */
+.grid-two-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 24px;
+}
+
+/* ==========================================================================
+   5. 胶囊标签 Badges
+   ========================================================================== */
+.badge-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+.pill-badge {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-base);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-regular);
+    transition: var(--transition);
+}
+
+.pill-badge:hover {
+    color: #fff;
+    border-color: var(--c-cyan);
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+}
+
+/* ==========================================================================
+   6. 统一的发光“查看更多”交互按钮 (.btn-glow-more)
+   ========================================================================== */
+.btn-glow-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 18px;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: var(--transition);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.btn-glow-more span.arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+}
+
+.btn-glow-more:hover {
+    color: #ffffff;
+    border-color: var(--c-cyan);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35);
+    text-decoration: none;
+}
+
+.btn-glow-more:hover span.arrow {
+    transform: translateX(5px);
+}
+
+/* ==========================================================================
+   7. 底部页脚
+   ========================================================================== */
+.site-footer {
+    border-top: 1px solid var(--border-base);
+    padding: 44px 0;
+    background-color: var(--bg-dark);
+    text-align: center;
+}
+
+.footer-links {
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+}
+
+.interactive-link {
+    color: var(--c-cyan);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+    margin: 0 8px;
+}
+
+.interactive-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer-copyright {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.form-input {
+    width: 100%;
+    background-color: rgba(7, 11, 20, 0.8);
+    border: 1px solid var(--border-base);
+    color: var(--text-pure);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    transition: var(--transition);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--c-purple);
+    box-shadow: 0 0 12px var(--c-purple-glow);
+}
+
+/* ==========================================================================
+   8. 现代极客表单控件 (Modern Dark Form Inputs & Widgets)
+   ========================================================================== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-pure);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-label::before {
+    content: "#";
+    color: var(--c-purple);
+}
+
+/* 统一输入框核心样式 */
+.form-input {
+    width: 100%;
+    background-color: rgba(7, 11, 20, 0.75);
+    border: 1px solid var(--border-base);
+    color: var(--text-pure);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: var(--transition);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--c-purple);
+    background-color: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 0 16px var(--c-purple-glow);
+}
+
+.form-input::placeholder {
+    color: #475569;
+}
+
+/* 针对 Textarea 优化 */
+textarea.form-input {
+    resize: vertical;
+    min-height: 160px;
+    font-family: var(--font-mono); /* 写 Markdown 或代码时使用等宽更舒适 */
+    font-size: 0.92rem;
+}
+
+/* 针对下拉单选 / 多选框优化 */
+select.form-input {
+    cursor: pointer;
+    background-color: #0b1120;
+}
+
+select.form-input option {
+    background-color: #0f172a;
+    color: var(--text-pure);
+    padding: 8px;
+}
+
+/* 多选 Tags 框 */
+select[multiple].form-input {
+    min-height: 110px;
+    padding: 8px;
+}
+
+select[multiple].form-input option:checked {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(56, 189, 248, 0.5));
+    color: #ffffff;
+}
+
+/* 错误提示文字 */
+.form-error-msg {
+    color: #f87171;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    margin-top: 4px;
+}
+
+/* 帮助提示说明 */
+.form-help-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   8. 现代表单 UI 控件 (Glassmorphic Forms & Inputs)
+   ========================================================================== */
+.form-container-card {
+    background-color: var(--card-surface);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    border-radius: 16px;
+    padding: 36px 32px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+}
+
+.form-group {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 640px) {
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-label {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-pure);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.required-star {
+    color: #f87171;
+}
+
+.label-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+/* 统一输入框核心属性 */
+.form-control {
+    width: 100%;
+    background-color: rgba(7, 11, 20, 0.85);
+    border: 1px solid var(--border-base);
+    color: var(--text-pure);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: var(--transition);
+}
+
+.form-control.font-code {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    tab-size: 4;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--c-purple);
+    background-color: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 0 16px var(--c-purple-glow);
+}
+
+/* 自定义下拉多选框样式与滚动条 */
+.custom-select-multi {
+    padding: 8px;
+}
+
+.custom-select-multi option {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background-color: var(--card-surface);
+    color: var(--text-regular);
+}
+
+.custom-select-multi option:checked {
+    background: linear-gradient(135deg, var(--c-purple), #6366f1);
+    color: #ffffff;
+}
+
+/* 错误提示动效 */
+.field-error-msg {
+    color: #f87171;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    margin-top: 6px;
+}
+
+.form-error-banner {
+    background-color: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #f87171;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+}
+
+/* 底部操作条 */
+.form-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--border-base);
+}
+
+.btn-submit {
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(56, 189, 248, 0.3));
+    border: 1px solid var(--c-purple);
+}
+
+.btn-submit:hover {
+    box-shadow: 0 6px 20px var(--c-purple-glow);
+}
+
+.btn-cancel {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.btn-cancel:hover {
+    color: #f87171;
+}

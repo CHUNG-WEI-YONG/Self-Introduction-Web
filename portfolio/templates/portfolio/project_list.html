@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Software Projects | Portfolio{% endblock %}
+
+{% block content %}
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h2 class="section-heading" style="color: var(--c-cyan);">
+                <span class="status-dot dot-cyan"></span> Software Projects
+            </h2>
+            {% if user.is_authenticated and user.is_superuser %}
+                <a class="btn-glow-more" href="{% url 'portfolio:project_create' %}">
+                    + Add Project <span class="arrow">&rarr;</span>
+                </a>
+            {% endif %}
+            <a class="btn-glow-more" href="{% url 'portfolio:tech_stack' %}">
+                View Tech Stack <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="grid-two-cols">
+            {% for project in projects %}
+                <article class="base-card card-project has-bg-img" style="/* background-image: url('/static/images/project-bg.jpg'); */">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <h3 class="card-item-title" style="font-size: 1.3rem;">{{ project.title }}</h3>
+                            <span class="pill-badge" style="color: var(--c-cyan); border-color: var(--c-cyan);">
+                                {{ project.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="card-desc">{{ project.description }}</p>
+                    </div>
+
+                    <div>
+                        <div class="badge-list" style="margin-bottom: 20px;">
+                            {% for tech in project.technologies.all %}
+                                <span class="pill-badge">
+                                    {{ tech.name }} &bull; {{ tech.get_proficiency_display }}
+                                </span>
+                            {% empty %}
+                                <span class="card-meta">No specific tech stack listed</span>
+                            {% endfor %}
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            {% if project.github_url %}
+                                <a class="btn-glow-more" href="{{ project.github_url }}" target="_blank">
+                                    GitHub <span class="arrow">&rarr;</span>
+                                </a>
+                            {% endif %}
+                            {% if project.demo_url %}
+                                <a class="btn-glow-more" href="{{ project.demo_url }}" target="_blank">
+                                    Live Demo <span class="arrow">&rarr;</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+
+                {% if user.is_authenticated and user.is_superuser %}
+                    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-base); display: flex; gap: 8px;">
+                        <a href="{% url 'portfolio:project_update' pk=project.pk %}" style="color: var(--c-cyan); font-size: 0.8rem; text-decoration: none;">[Edit]</a>
+                        <a href="{% url 'portfolio:project_delete' pk=project.pk %}" style="color: #f87171; font-size: 0.8rem; text-decoration: none;">[Delete]</a>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <div class="base-card card-project">
+                    <p class="card-desc">No projects added yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action_title }} | Portfolio{% endblock %}
+
+{% block content %}
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h2 class="section-heading" style="color: var(--c-cyan);">
+                <span class="status-dot dot-cyan"></span> {{ action_title }}
+            </h2>
+            <a class="btn-glow-more" href="{% url 'portfolio:project_list' %}">&larr; Back to Projects</a>
+        </div>
+
+        <div class="form-container-card">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="field-error-msg">{{ field.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="form-action-bar">
+                    <button type="submit" class="btn-glow-more btn-submit">
+                        Save Project <span class="arrow">&rarr;</span>
+                    </button>
+                    <a class="btn-cancel" href="{% url 'portfolio:project_list' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

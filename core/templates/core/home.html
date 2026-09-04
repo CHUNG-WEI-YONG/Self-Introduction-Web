@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Chung Wei Yong | Software Engineering Portfolio{% endblock %}
+
+{% block content %}
+    <!-- 1. Hero 个人介绍（支持设置背景图：在 style 中填入 url 即可） -->
+    <section class="base-card card-hero has-bg-img" style="/* background-image: url('/static/images/hero-bg.jpg'); */">
+        <h2 class="hero-title">Hi, I'm Chung Wei Yong 👋</h2>
+        <p style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 8px;">
+            Software Engineering Undergraduate at <strong>Universiti Teknologi Malaysia (UTM)</strong>.
+        </p>
+        <p style="color: var(--text-muted); max-width: 720px; margin-bottom: 24px;">
+            Focused on <strong>Backend Systems Architecture</strong>, <strong>Distributed Networking</strong>, 
+            and <strong>High-Performance C++ / Python Services</strong>.
+        </p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a class="btn-glow-more" href="{% url 'portfolio:project_list' %}">
+                Explore Projects <span class="arrow">&rarr;</span>
+            </a>
+            <a class="btn-glow-more" href="{% url 'blog:post_list' %}">
+                Read Blog <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- 2. 精选项目模块（电光蓝 Card + 双列自适应网格） -->
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h3 class="section-heading" style="color: var(--c-cyan);">
+                <span class="status-dot dot-cyan"></span> Featured Projects
+            </h3>
+            <a class="btn-glow-more" href="{% url 'portfolio:project_list' %}">
+                View All Projects <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="grid-two-cols">
+            {% for project in recent_projects %}
+                <article class="base-card card-project has-bg-img">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <h4 class="card-item-title">{{ project.title }}</h4>
+                            <span class="pill-badge" style="color: var(--c-cyan); border-color: var(--c-cyan);">
+                                {{ project.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="card-desc">{{ project.description|truncatewords:20 }}</p>
+                    </div>
+
+                    <div class="badge-list">
+                        {% for tech in project.technologies.all %}
+                            <span class="pill-badge">{{ tech.name }}</span>
+                        {% empty %}
+                            <span class="card-meta">No tags</span>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="base-card card-project">
+                    <p class="card-desc">No projects showcased yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 3. 最新博客模块（霓虹紫 Card + 双列自适应网格） -->
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h3 class="section-heading" style="color: var(--c-purple);">
+                <span class="status-dot dot-purple"></span> Latest Articles
+            </h3>
+            <a class="btn-glow-more" href="{% url 'blog:post_list' %}">
+                Read More Posts <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="grid-two-cols">
+            {% for post in latest_posts %}
+                <article class="base-card card-article has-bg-img">
+                    <div>
+                        <h4 class="card-item-title">
+                            <a href="{% url 'blog:post_detail' slug=post.slug %}">{{ post.title }}</a>
+                        </h4>
+                        <p class="card-meta">
+                            {{ post.publish_date|date:"M d, Y" }} &bull; By {{ post.author.username }}
+                        </p>
+                        <p class="card-desc">{{ post.summary|truncatewords:18 }}</p>
+                    </div>
+
+                    <div class="badge-list">
+                        {% for tag in post.tags.all %}
+                            <span class="pill-badge" style="color: var(--c-purple); border-color: rgba(168, 85, 247, 0.4);">
+                                #{{ tag.name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="base-card card-article">
+                    <p class="card-desc">No published articles yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 4. 核心技能看板（翡翠绿 Card） -->
+    <section class="section-block" style="margin-bottom: 0;">
+        <div class="section-title-wrap">
+            <h3 class="section-heading" style="color: var(--c-emerald);">
+                <span class="status-dot dot-emerald"></span> Core Capabilities
+            </h3>
+            <a class="btn-glow-more" href="{% url 'portfolio:tech_stack' %}">
+                Explore Full Stack <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="base-card card-tech">
+            <div class="badge-list">
+                {% for tech in featured_tech %}
+                    <span class="pill-badge" style="font-size: 0.88rem; padding: 6px 14px; border-color: rgba(16, 185, 129, 0.4); color: #a7f3d0;">
+                        {{ tech.name }} &bull; {{ tech.category.name }}
+                        {% if tech.is_learning %}<em style="color: #6ee7b7;">(Learning)</em>{% endif %}
+                    </span>
+                {% empty %}
+                    <p class="card-desc">No skills listed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

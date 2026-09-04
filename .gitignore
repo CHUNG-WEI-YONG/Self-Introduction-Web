@@ -1,0 +1,21 @@
+# 敏感环境变量与密钥（绝对不能上传）
+.env
+.env.*
+
+# 本地数据库与向量库
+*.sqlite3
+db.sqlite3
+agent/chroma_db/
+chroma_db/
+
+# Python 运行时与缓存
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# 静态资源与用户上传文件
+staticfiles/
+media/

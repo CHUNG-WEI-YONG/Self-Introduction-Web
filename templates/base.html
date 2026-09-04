@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Personal Portfolio{% endblock %}</title>
+    <!-- 引入高质感专业字体：Inter（阅读）与 JetBrains Mono（代码） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="site-body">
+    <header class="site-header">
+        <div class="site-container header-layout">
+            <h1 class="brand-logo">
+                <a href="{% url 'core:home' %}"><span class="logo-accent">&gt;</span> WY.Chung<span class="cursor-blink">_</span></a>
+            </h1>
+            <nav class="nav-menu">
+                <a class="nav-item" href="{% url 'core:home' %}">Home</a>
+                <a class="nav-item" href="{% url 'core:about' %}">About</a>
+                <a class="nav-item" href="{% url 'portfolio:tech_stack' %}">Tech Stack</a>
+                <a class="nav-item" href="{% url 'portfolio:project_list' %}">Projects</a>
+                <a class="nav-item" href="{% url 'blog:post_list' %}">Blog</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="site-container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- AI Assistant 悬浮终端入口 -->
+<div id="ai-agent-widget" style="position: fixed; bottom: 28px; right: 28px; z-index: 999; font-family: var(--font-mono, monospace);">
+    <!-- 圆形悬浮开关按钮 -->
+    <button id="agent-toggle-btn" style="width: 54px; height: 54px; border-radius: 50%; background: #0b1120; border: 1.5px solid var(--c-cyan, #06b6d4); color: var(--c-cyan, #06b6d4); font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 16px rgba(6, 182, 212, 0.35); transition: all 0.3s ease;">
+        &gt;_
+    </button>
+
+    <!-- 呼出式极客对话框 -->
+    <div id="agent-chat-modal" style="display: none; position: absolute; bottom: 68px; right: 0; width: 360px; height: 460px; background: rgba(11, 17, 32, 0.96); backdrop-filter: blur(12px); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6); flex-direction: column; overflow: hidden;">
+        
+        <!-- 终端顶栏 -->
+        <div style="background: rgba(15, 23, 42, 0.85); padding: 10px 14px; border-bottom: 1px solid var(--border-base, #1e293b); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+                <span style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600;">Portfolio RAG Terminal</span>
+            </div>
+            <button id="agent-close-btn" style="background: none; border: none; color: #64748b; font-size: 1.1rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <!-- 聊天记录视窗 -->
+        <div id="agent-messages" style="flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; line-height: 1.5;">
+            <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 8px; border-left: 2px solid var(--c-cyan, #06b6d4); color: #94a3b8;">
+                Hello! I am the automated knowledge assistant. Ask me anything about Chung's tech stack, projects, or blog posts.
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <form id="agent-form" style="display: flex; border-top: 1px solid var(--border-base, #1e293b); background: rgba(7, 11, 20, 0.9);">
+            <input id="agent-input" type="text" placeholder="Ask a question..." autocomplete="off" style="flex: 1; background: transparent; border: none; padding: 12px; color: #f8fafc; font-family: inherit; font-size: 0.85rem; outline: none;">
+            <button type="submit" style="background: transparent; border: none; padding: 0 16px; color: var(--c-cyan, #06b6d4); cursor: pointer; font-weight: 700;">&rarr;</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('agent-toggle-btn');
+    const closeBtn = document.getElementById('agent-close-btn');
+    const modal = document.getElementById('agent-chat-modal');
+    const form = document.getElementById('agent-form');
+    const input = document.getElementById('agent-input');
+    const msgContainer = document.getElementById('agent-messages');
+    let isSubmitting = false;
+
+    toggleBtn.addEventListener('click', () => {
+        const isHidden = modal.style.display === 'none' || modal.style.display === '';
+        modal.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden) input.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+
+        const messageText = input.value.trim();
+        if (!messageText) return;
+
+        isSubmitting = true;
+        input.value = '';
+        input.disabled = true;
+
+        appendMessage(messageText, 'user');
+        const loadingDiv = appendMessage('Consulting portfolio knowledge base...', 'agent', true);
+
+        // 设置 15 秒超时控制器，防止无限挂起
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        try {
+            console.log('[Agent] Sending message:', messageText);
+            const res = await fetch('/api/agent/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ message: messageText }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            console.log('[Agent] HTTP Status:', res.status);
+            const data = await res.json();
+            console.log('[Agent] Server Response:', data);
+
+            if (data.reply) {
+                loadingDiv.innerText = data.reply;
+                loadingDiv.style.color = '#e2e8f0';
+            } else {
+                loadingDiv.innerText = data.error || 'Unknown response from server.';
+                loadingDiv.style.color = '#f87171';
+            }
+        } catch (err) {
+            console.error('[Agent] Fetch Error:', err);
+            if (err.name === 'AbortError') {
+                loadingDiv.innerText = 'Request timed out. Please check your network connection to the AI backend.';
+            } else {
+                loadingDiv.innerText = 'Failed to get response: ' + err.message;
+            }
+            loadingDiv.style.color = '#f87171';
+        } finally {
+            isSubmitting = false;
+            input.disabled = false;
+            input.focus();
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+    });
+
+    function appendMessage(text, role, isLoading = false) {
+        const div = document.createElement('div');
+        div.style.padding = '8px 12px';
+        div.style.borderRadius = '8px';
+        div.style.maxWidth = '88%';
+        div.style.whiteSpace = 'pre-wrap';
+        div.innerText = text;
+
+        if (role === 'user') {
+            div.style.alignSelf = 'flex-end';
+            div.style.background = 'rgba(6, 182, 212, 0.15)';
+            div.style.color = '#a5f3fc';
+            div.style.border = '1px solid rgba(6, 182, 212, 0.3)';
+        } else {
+            div.style.alignSelf = 'flex-start';
+            div.style.background = 'rgba(30, 41, 59, 0.6)';
+            div.style.color = isLoading ? '#64748b' : '#e2e8f0';
+            div.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+        }
+        msgContainer.appendChild(div);
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+        return div;
+    }
+</script>
+
+    <footer class="site-footer">
+        <div class="site-container footer-content">
+            <div class="footer-links" style="display: inline-flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;">
+                <a class="interactive-link" href="https://github.com/CHUNG-WEI-YONG" target="_blank">GitHub</a>
+                <span>&bull;</span>
+                <a class="interactive-link" href="mailto:chungwyong@gmail.com">Contact</a>
+                <span>&bull;</span>
+                
+                {% if user.is_authenticated %}
+                    <span style="color: var(--c-emerald); font-family: var(--font-mono); font-size: 0.85rem;">
+                        ● Admin Mode ({{ user.username }})
+                    </span>
+                    <span>&bull;</span>
+                    <!-- Django 5.x 标准规范：使用 POST 表单完成安全注销 -->
+                    <form action="{% url 'admin:logout' %}" method="post" style="display: inline-block; margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="interactive-link" style="background: none; border: none; padding: 0; cursor: pointer; font: inherit;">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a class="interactive-link" href="{% url 'admin:login' %}">Owner Login</a>
+                {% endif %}
+            </div>
+            <p class="footer-copyright">&copy; 2026 Developer Portfolio. Built with Django &amp; High-Performance Architecture.</p>
+        </div>
+    </footer>
+</body>
+</html>

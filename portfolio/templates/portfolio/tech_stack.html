@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Technology Stack | Engineering Capabilities{% endblock %}
+
+{% block content %}
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h2 class="section-heading" style="color: var(--c-emerald);">
+                <span class="status-dot dot-emerald"></span> Technology Stack &amp; Proficiencies
+            </h2>
+            <div style="display: flex; gap: 10px;">
+                {% if user.is_authenticated and user.is_superuser %}
+                    <a class="btn-glow-more" href="{% url 'portfolio:tech_create' %}" style="border-color: var(--c-emerald); color: var(--c-emerald);">
+                        + Add Technology <span class="arrow">&rarr;</span>
+                    </a>
+                {% endif %}
+                <a class="btn-glow-more" href="{% url 'portfolio:project_list' %}">
+                    View Projects <span class="arrow">&rarr;</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid-two-cols">
+            {% for category in categories %}
+                <article class="base-card card-tech has-bg-img">
+                    <div>
+                        <h3 class="card-item-title" style="color: #a7f3d0; margin-bottom: 16px;">
+                            {{ category.name }}
+                        </h3>
+                    </div>
+
+                    <div class="badge-list">
+                        {% for tech in category.technologies.all %}
+                            <span class="pill-badge" style="font-size: 0.85rem; padding: 6px 12px; border-color: rgba(16, 185, 129, 0.35); color: #ecfdf5; display: inline-flex; align-items: center; gap: 6px;">
+                                <span>{{ tech.name }} &bull; {{ tech.get_proficiency_display }}</span>
+                                
+                                {% if tech.is_learning %}
+                                    <em style="color: var(--c-cyan); font-size: 0.78rem;">(Learning)</em>
+                                {% endif %}
+
+                                {% if user.is_authenticated and user.is_superuser %}
+                                    <span style="display: inline-flex; gap: 4px; margin-left: 6px; padding-left: 6px; border-left: 1px solid rgba(255, 255, 255, 0.2);">
+                                        <a href="{% url 'portfolio:tech_update' pk=tech.pk %}" title="Edit" style="color: var(--c-cyan); text-decoration: none; font-size: 0.85rem;">✎</a>
+                                        <a href="{% url 'portfolio:tech_delete' pk=tech.pk %}" title="Delete" style="color: #f87171; text-decoration: none; font-size: 0.95rem; line-height: 1;">&times;</a>
+                                    </span>
+                                {% endif %}
+                            </span>
+                        {% empty %}
+                            <span class="card-meta">No technologies added in this category yet.</span>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="base-card card-tech">
+                    <p class="card-desc">No tech categories found.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

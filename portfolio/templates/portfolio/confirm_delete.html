@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete | Portfolio{% endblock %}
+
+{% block content %}
+    <section class="section-block">
+        <article class="base-card card-article" style="border-color: rgba(248, 113, 113, 0.4); max-width: 600px; margin: 0 auto;">
+            <h2 class="hero-title" style="color: #f87171; font-size: 1.8rem;">Confirm Deletion</h2>
+            <p class="card-desc" style="margin: 16px 0 24px;">
+                Are you sure you want to permanently delete <strong>"{{ object }}"</strong>? This action cannot be reversed.
+            </p>
+
+            <form method="post" style="display: flex; gap: 12px;">
+                {% csrf_token %}
+                <button type="submit" class="btn-glow-more" style="background: rgba(248, 113, 113, 0.2); border-color: #f87171; cursor: pointer;">
+                    Confirm Delete
+                </button>
+                <a class="btn-glow-more" href="{% url cancel_url %}">Cancel</a>
+            </form>
+        </article>
+    </section>
+{% endblock %}

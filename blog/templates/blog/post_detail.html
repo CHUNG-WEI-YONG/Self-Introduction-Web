@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} | Engineering Blog{% endblock title %}
+
+{% block content %}
+    <section class="section-block">
+        <article class="base-card card-article has-bg-img" style="padding: 40px 36px;">
+            <div style="margin-bottom: 24px;">
+                <h1 class="hero-title" style="font-size: 2.2rem; margin-bottom: 12px; line-height: 1.3;">
+                    {{ post.title }}
+                </h1>
+                <p class="card-meta" style="font-size: 0.9rem;">
+                    Published on {{ post.publish_date|date:"F j, Y" }} &bull; Author: <strong style="color: var(--text-pure);">{{ post.author.username }}</strong>
+                </p>
+
+                <div class="badge-list">
+                    {% for tag in post.tags.all %}
+                        <span class="pill-badge" style="color: var(--c-purple); border-color: rgba(168, 85, 247, 0.4);">
+                            #{{ tag.name }}
+                        </span>
+                    {% empty %}
+                        <span class="card-meta">No tags</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-base); margin-bottom: 32px;"></div>
+
+            <!-- 正文内容 -->
+            <div class="text-content" style="font-size: 1.05rem; line-height: 1.85; color: #e2e8f0;">
+                {{ post.content|linebreaks }}
+            </div>
+
+            <!-- 文章关联多图画廊展示 -->
+            {% if post.images.all %}
+                <div style="margin-top: 40px; border-top: 1px dashed var(--border-base); padding-top: 28px;">
+                    <h3 class="card-item-title" style="color: var(--c-purple); margin-bottom: 18px;">
+                        📷 Article Gallery
+                    </h3>
+                    <div class="grid-two-cols">
+                        {% for img_obj in post.images.all %}
+                            <div style="border-radius: 12px; overflow: hidden; border: 1px solid var(--border-base); background-color: rgba(7, 11, 20, 0.8);">
+                                <img src="{{ img_obj.image.url }}" alt="{{ img_obj.caption|default:post.title }}" 
+                                     style="width: 100%; height: 240px; object-fit: cover; display: block;">
+                                {% if img_obj.caption %}
+                                    <p style="padding: 8px 12px; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0;">
+                                        {{ img_obj.caption }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- 底部操作区 -->
+            <div style="border-top: 1px solid var(--border-base); margin-top: 48px; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <a class="btn-glow-more" href="{% url 'blog:post_list' %}">
+                    &larr; Back to all posts
+                </a>
+
+                {% if user.is_authenticated and user == post.author %}
+                    <div style="display: flex; gap: 10px;">
+                        <a class="btn-glow-more" href="{% url 'blog:post_update' slug=post.slug %}" style="border-color: var(--c-cyan); color: var(--c-cyan);">
+                            Edit Article
+                        </a>
+                        <a class="btn-glow-more" href="{% url 'blog:post_delete' slug=post.slug %}" style="border-color: #f87171; color: #f87171; background: rgba(248, 113, 113, 0.1);">
+                            Delete
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </article>
+    </section>
+{% endblock %}

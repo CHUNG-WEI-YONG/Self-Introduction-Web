@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <!-- 1. 顶部个人概述 Hero 卡片（支持 has-bg-img 设置背景图） -->
+    <section class="base-card card-hero has-bg-img" style="/* background-image: url('/static/images/about-bg.jpg'); */">
+        <h2 class="hero-title">About Me</h2>
+        <p style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 12px;">
+            {{ content }}
+        </p>
+        <div>
+            <a class="btn-glow-more" href="https://github.com/CHUNG-WEI-YONG" target="_blank">
+                Visit GitHub <span class="arrow">&rarr;</span>
+            </a>
+            <a class="btn-glow-more" style="margin-left: 10px;" href="mailto:chungwyong@gmail.com">
+                Contact Me <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- 2. 教育背景（电光蓝主题卡片） -->
+    <section class="section-block">
+        <div class="section-title-wrap">
+            <h3 class="section-heading" style="color: var(--c-cyan);">
+                <span class="status-dot dot-cyan"></span> Education & Background
+            </h3>
+        </div>
+
+        <article class="base-card card-project">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                <h4 class="card-item-title">Universiti Teknologi Malaysia (UTM)</h4>
+                <span class="pill-badge" style="color: var(--c-cyan); border-color: var(--c-cyan);">
+                    Undergraduate
+                </span>
+            </div>
+            <p class="card-desc">
+                Software Engineering Degree Candidate
+            </p>
+            <div class="badge-list">
+                <span class="pill-badge">Data Structures & Algorithms</span>
+                <span class="pill-badge">Operating Systems</span>
+                <span class="pill-badge">Database Systems</span>
+                <span class="pill-badge">Computer Networks</span>
+            </div>
+        </article>
+    </section>
+
+    <!-- 3. 研究兴趣与工程方向（霓虹紫主题卡片） -->
+    <section class="section-block" style="margin-bottom: 0;">
+        <div class="section-title-wrap">
+            <h3 class="section-heading" style="color: var(--c-purple);">
+                <span class="status-dot dot-purple"></span> Technical Focus & Interests
+            </h3>
+            <a class="btn-glow-more" href="{% url 'portfolio:tech_stack' %}">
+                View Tech Stack <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="grid-two-cols">
+            <!-- 兴趣分支 1 -->
+            <article class="base-card card-article">
+                <h4 class="card-item-title">Backend & High-Performance Systems</h4>
+                <p class="card-desc">
+                    Modern C++ (C++17/20), Concurrency Primitives, Memory Allocators, Asynchronous I/O, and Thread Pools.
+                </p>
+                <div class="badge-list">
+                    <span class="pill-badge" style="color: var(--c-purple);">#C++</span>
+                    <span class="pill-badge" style="color: var(--c-purple);">#Boost.Asio</span>
+                    <span class="pill-badge" style="color: var(--c-purple);">#gRPC</span>
+                </div>
+            </article>
+
+            <!-- 兴趣分支 2 -->
+            <article class="base-card card-article">
+                <h4 class="card-item-title">Full-Stack Web & Distributed Data</h4>
+                <p class="card-desc">
+                    Django Framework, Relational Schema Design (MySQL), Caching Strategies (Redis), and RESTful API Architectures.
+                </p>
+                <div class="badge-list">
+                    <span class="pill-badge" style="color: var(--c-purple);">#Python</span>
+                    <span class="pill-badge" style="color: var(--c-purple);">#Django</span>
+                    <span class="pill-badge" style="color: var(--c-purple);">#MySQL</span>
+                </div>
+            </article>
+        </div>
+    </section>
+{% endblock %}
