@@ -17,10 +17,13 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '*').split(',') if host.strip()]
 
 # 兼容生产环境的 CSRF 可信域名
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
-]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# 直接写死线上域名，彻底避免环境变量未读到的问题
+CSRF_TRUSTED_ORIGINS = [
+    'https://resume-chung-wei-yong.up.railway.app',
+    'https://*.up.railway.app',
+]
 
 # Application definition
 
