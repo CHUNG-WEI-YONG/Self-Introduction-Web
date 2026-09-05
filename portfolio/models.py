@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.text import slugify 
+import itertools
 
 # Create your models here.
 class TechCategory(models.Model):
@@ -65,6 +67,24 @@ class Project(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # 如果没有填写 slug，或者 slug 为空，则从 title 自动生成
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        # 确保 slug 全局唯一，若重复则自动拼接递增数字（如 project-1, project-2）
+        original_slug = self.slug
+        for x in itertools.count(1):
+            # 查询是否存在同名 slug（排除当前对象本身，方便编辑更新）
+            if not Project.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                break
+            self.slug = f"{original_slug}-{x}"
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         ordering = ['-created_at']
