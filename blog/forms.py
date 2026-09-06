@@ -1,7 +1,5 @@
 from django import forms
-from django.utils.text import slugify
 from .models import Post
-
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -28,15 +26,6 @@ class PostForm(forms.ModelForm):
                 'type': 'datetime-local'
             }),
         }
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        if not instance.slug:
-            instance.slug = slugify(instance.title)
-        if commit:
-            instance.save()
-            self.save_m2m()
-        return instance
 
 
 

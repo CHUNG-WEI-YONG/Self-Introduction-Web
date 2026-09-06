@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
+import itertools
 
 # Create your models here.
 class Tags(models.Model):
@@ -15,7 +17,7 @@ class Post(models.Model):
         PUBLISHED='PUB','PUBLISHED'
 
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique_for_date='publish_date',unique=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -40,6 +42,19 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        # 解决重名导致的 UNIQUE constraint failed
+        original_slug = self.slug
+        for x in itertools.count(1):
+            if not Post.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                break
+            self.slug = f"{original_slug}-{x}"
+
+        super().save(*args, **kwargs)
 
 class PostImage(models.Model):
     post = models.ForeignKey(

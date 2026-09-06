@@ -30,27 +30,29 @@ def post_detail_view(request,slug):
     return render(request,'blog/post_detail.html',context)
 
 
-@user_passes_test(is_admin_user, login_url='/admin/login/') 
+@user_passes_test(is_admin_user, login_url='/admin/login/')
 def post_create_view(request):
     if request.method == 'POST':
-        # 1. 绑定 POST 请求数据到表单
-        form = PostForm(request.POST)
-        images=request.FILES.getlist("images")
+        # 1. 必须同时绑定 POST 与 FILES
+        form = PostForm(request.POST, request.FILES)
+        images = request.FILES.getlist("images")
+        
         if form.is_valid():
-            # 2. 挂起保存以填充当前登录用户
             post = form.save(commit=False)
-            post.author = request.user  # 修正：使用 request.user
-            post.save()
-            form.save_m2m()  # 保存关联的 tags
+            post.author = request.user
+            post.save()          # 触发 models.py 中的自动生成 slug 逻辑
+            form.save_m2m()      # 保存 tags 关联
 
             for image in images:
-                PostImage.objects.create(post=post,image=image)
+                PostImage.objects.create(post=post, image=image)
+                
             return redirect('blog:post_detail', slug=post.slug)
+        else:
+            # 调试：控制台打印表单未能通过的原因
+            print("Post Form Validation Failed:", form.errors)
     else:
-        # 3. GET 请求：直接实例化一个空白表单
         form = PostForm()
 
-    # 4. 无论 GET 还是校验失败的 POST，均渲染页面并回显错误信息
     return render(request, 'blog/post_form.html', {
         'form': form,
         'action_title': 'Create New Article'
