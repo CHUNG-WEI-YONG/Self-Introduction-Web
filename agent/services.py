@@ -15,7 +15,7 @@ class KnowLedgeBaseService:
 
     def get_embedding(self,text):
         response=self.gemini_client.models.embed_content(
-            model="text-embedding-004",
+            model="gemini-embedding-2",
             contents=text,
         )
 
