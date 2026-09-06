@@ -9,8 +9,8 @@ def home(request):
     featured_path=Technology.objects.select_related('category').all()[:6]
     context={
         'recent_projects':recent_projects,
-        'latest_post':latest_post,
-        'featured_path':featured_path,
+        'latest_posts':latest_post,
+        'featured_tech':featured_path,
     }
     return render(request,'core/home.html',context)
 
