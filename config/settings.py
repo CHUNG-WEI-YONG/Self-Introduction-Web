@@ -133,3 +133,26 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# 1. 自动检测挂载卷路径
+PERSISTENT_STORAGE_DIR = Path('/app/data')
+if PERSISTENT_STORAGE_DIR.exists():
+    DATA_DIR = PERSISTENT_STORAGE_DIR
+else:
+    DATA_DIR = BASE_DIR
+
+# 2. SQLite 数据库持久化
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': DATA_DIR / 'db.sqlite3',
+    }
+}
+
+# 3. 媒体文件（博客图片、项目封面）持久化
+MEDIA_URL = '/media/'
+MEDIA_ROOT = DATA_DIR / 'media'
+
+# 4. ChromaDB 向量库持久化目录（供 agent 使用）
+CHROMA_PATH = str(DATA_DIR / 'chroma_db')
