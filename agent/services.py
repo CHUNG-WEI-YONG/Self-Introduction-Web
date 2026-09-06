@@ -21,7 +21,7 @@ class KnowLedgeBaseService:
 
         return response.embeddings[0].values
 
-    def chunk_text(self,text,chunk_size,overlap):
+    def chunk_text(self,text,chunk_size=500,overlap=50):
         words = text.split()
         if not words:
             return []
